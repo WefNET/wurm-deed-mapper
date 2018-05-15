@@ -122,6 +122,7 @@ export class AppComponent {
       var type = feature.get('ground');
       var color = feature.get('color');
 
+      // http://jsfiddle.net/vkm2rg46/3/
       return [
         new ol.style.Style({
           image: new ol.style.RegularShape({
