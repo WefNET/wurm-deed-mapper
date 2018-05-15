@@ -14,6 +14,7 @@ export class AppComponent {
   mapJson;
   map: any;
   tileLayer: any;
+  treeLayer: any;
 
   constructor(private http: HttpClient) {
     this.getParseMap();
@@ -29,27 +30,27 @@ export class AppComponent {
   groudColor(id: string): string {
     switch (id) {
       case "gr":
-        return "rgba(46, 204, 56, 0.5)"
+        return "rgba(46, 204, 56, 1)"
       case "lw":
-        return "rgba(46, 204, 56, 0.5)"
+        return "rgba(46, 204, 56, 1)"
       case "pd":
-        return "rgba(254,235,206, 0.5)"
+        return "rgba(254,235,206, 1)"
       case "ro":
-        return "rgba(168,168,168, 0.5)"
+        return "rgba(168,168,168, 1)"
       case "di":
-        return "rgba(138,68,19, 0.5)"
+        return "rgba(138,68,19, 1)"
       case "csr":
-        return "rgba(111,127,142, 0.5)"
+        return "rgba(111,127,142, 1)"
       case "cs":
-        return "rgba(111,127,142, 0.5)"
+        return "rgba(111,127,142, 1)"
       case "gv":
-        return "rgba(210,210,210, 0.5)"
+        return "rgba(210,210,210, 1)"
       case "eg":
-        return "rgba(46,204,56, 0.5)"
+        return "rgba(46,204,56, 1)"
       case "sa":
-        return "rgba(243,162,98, 0.5)"
+        return "rgba(243,162,98, 1)"
       default:
-        return "rgba(8,191,252, 0.5)"
+        return "rgba(8,191,252, 1)"
     }
   }
 
@@ -92,7 +93,7 @@ export class AppComponent {
     ];
 
     var iconInfo = [];
-  
+
     let s: number = 16
 
     while (s > 0.004) {
@@ -102,8 +103,8 @@ export class AppComponent {
       });
 
       s = s / 2;
-    } 
-    
+    }
+
     var iconCount = iconInfo.length;
     var icons = new Array(iconCount);
 
@@ -115,7 +116,7 @@ export class AppComponent {
           radius: info.radius,
           angle: Math.PI / 4,
           fill: new ol.style.Fill({
-            color: "rgba(46, 204, 56, 0.5)"
+            color: "rgba(46, 204, 56, 1)"
           }),
         }),
         reso: info.reso
@@ -125,6 +126,7 @@ export class AppComponent {
     console.log("Icons", icons);
 
     var tileSrc = new ol.source.Vector();
+    var treeSrc = new ol.source.Vector();
 
     // main interator
     for (let tile of json.map.tile) {
@@ -133,7 +135,6 @@ export class AppComponent {
 
       var tileFeature = new ol.Feature({
         geometry: new ol.geom.Point([x, y]),
-        // geometry: new ol.geom.Circle([x, y], 8),
         ground: tile.ground.id,
         color: this.groudColor(tile.ground.id)
       });
@@ -148,6 +149,17 @@ export class AppComponent {
       }
       else {
         // console.log("Levels", levels);
+      }
+
+      if (tile.level.object != null) {
+        // console.log("Tree?", tile.level.object);
+
+        var treeFeature = new ol.Feature({
+          geometry: new ol.geom.Circle([x, y], 4),
+          tree: tile.level.object
+        })
+
+        treeSrc.addFeature(treeFeature);
       }
     }
 
@@ -177,17 +189,18 @@ export class AppComponent {
           })
         ]
       }
-
-      // Circle
-      // return [
-      //   new ol.style.Style({
-
-      //     fill: new ol.style.Fill({
-      //       color: color
-      //     }),
-      //   })
-      // ]
     };
+
+    var treeStyleFunction = function (feature, resolution) {
+      return [
+        new ol.style.Style({
+
+          stroke: new ol.style.Stroke({
+            color: 'rgba(105, 105, 105, 1)'
+          }),
+        })
+      ]
+    }
 
     this.tileLayer = new ol.layer.Vector({
       source: tileSrc,
@@ -196,12 +209,19 @@ export class AppComponent {
       renderMode: 'image'
     });
 
+    this.treeLayer = new ol.layer.Vector({
+      source: treeSrc,
+      style: treeStyleFunction,
+      renderMode: 'image'
+    });
+
     this.map = new ol.Map({
       layers: [
-        this.tileLayer
+        this.tileLayer,
+        this.treeLayer
       ],
       target: 'map',
-      renderer: 'webgl',
+      // renderer: 'webgl',
       controls: controls,
       view: new ol.View({
         center: [mapwidth / 2, mapHeight / 2],
