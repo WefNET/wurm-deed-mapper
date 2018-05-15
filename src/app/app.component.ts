@@ -29,9 +29,9 @@ export class AppComponent {
   groudColor(id: string): string {
     switch (id) {
       case "gr":
-        return "rgba(46,204,56, 0.5)"
+        return "rgba(46, 204, 56, 0.5)"
       case "lw":
-        return "rgba(46,204,56, 0.5)"
+        return "rgba(46, 204, 56, 0.5)"
       case "pd":
         return "rgba(254,235,206, 0.5)"
       case "ro":
@@ -49,7 +49,6 @@ export class AppComponent {
       case "sa":
         return "rgba(243,162,98, 0.5)"
       default:
-        console.log("Ukn color id:", id);
         return "rgba(8,191,252, 0.5)"
     }
   }
@@ -67,8 +66,6 @@ export class AppComponent {
     var mapMaxResolution = 1.00000000;
     var tileExtent = [0, -200, 200, 0]
 
-    // console.log("Extent", mapExtent);
-
     var mapResolutions = [];
 
     for (var z = 0; z <= mapMaxZoom; z++) {
@@ -82,7 +79,6 @@ export class AppComponent {
     });
 
     var controls = [
-      // new ol.control.Attribution(),
       new ol.control.MousePosition({
         undefinedHTML: 'outside',
         coordinateFormat: function (coordinate) {
@@ -95,13 +91,10 @@ export class AppComponent {
 
     var tileSrc = new ol.source.Vector();
 
+    // main interator
     for (let tile of json.map.tile) {
       let x: number = parseInt(tile.x);
       let y: number = parseInt(tile.y);
-
-      if (y == 75 && x == 75) {
-        console.log("75^2 Tile Ground ID", tile.ground.id);
-      }
 
       var tileFeature = new ol.Feature({
         // geometry: new ol.geom.Point([x, y]),
@@ -111,12 +104,21 @@ export class AppComponent {
       });
 
       tileSrc.addFeature(tileFeature);
+
+      // level stuff
+      let levels: any[] = tile.level;
+
+      if (levels.length > 2) {
+        // console.log("Levels", levels);
+      }
+      else {
+        // console.log("Levels", levels);
+      }
     }
 
     var tileStyleFunction = function (feature, resolution) {
       var type = feature.get('ground');
       var color = feature.get('color');
-
 
       return [
         new ol.style.Style({
