@@ -56,15 +56,17 @@ export class AppComponent {
   renderMapData(json: any) {
     console.log("Map data:", json);
 
-    let mapHeight: number = parseInt(json.map.height);
-    let mapwidth: number = parseInt(json.map.width);
+    let mapHeight: number = parseInt(json.map.height) * 16;
+    let mapwidth: number = parseInt(json.map.width) * 16;
+
+    let negExtentY = 0 - mapHeight;
 
     // oh shit the real map code kinda starts here!
-    var mapExtent = [0, -200, 200, 0];
+    var mapExtent = [0, negExtentY, mapwidth, 0];
     var mapMinZoom = 0;
     var mapMaxZoom = 5;
     var mapMaxResolution = 1.00000000;
-    var tileExtent = [0, -200, 200, 0]
+    var tileExtent = [0, negExtentY, mapwidth, 0];
 
     var mapResolutions = [];
 
@@ -93,12 +95,12 @@ export class AppComponent {
 
     // main interator
     for (let tile of json.map.tile) {
-      let x: number = parseInt(tile.x);
-      let y: number = parseInt(tile.y);
+      let x: number = parseInt(tile.x) * 16;
+      let y: number = parseInt(tile.y) * 16;
 
       var tileFeature = new ol.Feature({
-        // geometry: new ol.geom.Point([x, y]),
-        geometry: new ol.geom.Circle([x, y], .5),
+        geometry: new ol.geom.Point([x, y]),
+        // geometry: new ol.geom.Circle([x, y], 8),
         ground: tile.ground.id,
         color: this.groudColor(tile.ground.id)
       });
@@ -122,12 +124,31 @@ export class AppComponent {
 
       return [
         new ol.style.Style({
-
-          fill: new ol.style.Fill({
-            color: color
-          }),
+          image: new ol.style.RegularShape({
+            points: 4,
+            radius: 8 / resolution,
+            angle: Math.PI / 4,
+            fill: new ol.style.Fill({
+              color: color
+            }),
+            // stroke: new ol.style.Stroke({
+            //     width: 2,
+            //     color: 'rgba(0, 0, 0, 0.9)'
+            // })
+          })
         })
       ]
+
+
+      // Circle
+      // return [
+      //   new ol.style.Style({
+
+      //     fill: new ol.style.Fill({
+      //       color: color
+      //     }),
+      //   })
+      // ]
     };
 
     this.tileLayer = new ol.layer.Vector({
@@ -149,13 +170,13 @@ export class AppComponent {
       })
     });
 
-    this.map.on('click', function(evt) {
+    this.map.on('click', function (evt) {
       // displayFeatureInfo(evt.pixel);
 
-      var feature = evt.map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+      var feature = evt.map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
         return feature;
       });
-    
+
       var info = document.getElementById('info');
       if (feature) {
         info.innerHTML = 'Ground ID : ' + feature.get('ground');
