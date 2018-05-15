@@ -26,6 +26,34 @@ export class AppComponent {
       });
   }
 
+  groudColor(id: string): string {
+    switch (id) {
+      case "gr":
+        return "rgba(46,204,56, 0.5)"
+      case "lw":
+        return "rgba(46,204,56, 0.5)"
+      case "pd":
+        return "rgba(254,235,206, 0.5)"
+      case "ro":
+        return "rgba(168,168,168, 0.5)"
+      case "di":
+        return "rgba(138,68,19, 0.5)"
+      case "csr":
+        return "rgba(111,127,142, 0.5)"
+      case "cs":
+        return "rgba(111,127,142, 0.5)"
+      case "gv":
+        return "rgba(210,210,210, 0.5)"
+      case "eg":
+        return "rgba(46,204,56, 0.5)"
+      case "sa":
+        return "rgba(243,162,98, 0.5)"
+      default:
+        console.log("Ukn color id:", id);
+        return "rgba(8,191,252, 0.5)"
+    }
+  }
+
   renderMapData(json: any) {
     console.log("Map data:", json);
 
@@ -78,7 +106,8 @@ export class AppComponent {
       var tileFeature = new ol.Feature({
         // geometry: new ol.geom.Point([x, y]),
         geometry: new ol.geom.Circle([x, y], .5),
-        ground: tile.ground.id
+        ground: tile.ground.id,
+        color: this.groudColor(tile.ground.id)
       });
 
       tileSrc.addFeature(tileFeature);
@@ -86,37 +115,17 @@ export class AppComponent {
 
     var tileStyleFunction = function (feature, resolution) {
       var type = feature.get('ground');
+      var color = feature.get('color');
 
-      if (type === "gr") {
-        return [
-          new ol.style.Style({
 
-            fill: new ol.style.Fill({
-              color: 'rgba(0, 255, 0, 1)'
-            }),
-          })
-        ]
-      }
-      else if (type === "csr") {
-        return [
-          new ol.style.Style({
+      return [
+        new ol.style.Style({
 
-            fill: new ol.style.Fill({
-              color: 'rgba(105, 105, 105, 1)'
-            }),
-          })
-        ]
-      }
-      else {
-        return [
-          new ol.style.Style({
-
-            fill: new ol.style.Fill({
-              color: 'rgba(0, 0, 255, 1)'
-            }),
-          })
-        ]
-      }
+          fill: new ol.style.Fill({
+            color: color
+          }),
+        })
+      ]
     };
 
     this.tileLayer = new ol.layer.Vector({
@@ -136,6 +145,21 @@ export class AppComponent {
         zoom: 8,
         maxResolution: mapTileGrid.getResolution(mapMinZoom)
       })
+    });
+
+    this.map.on('click', function(evt) {
+      // displayFeatureInfo(evt.pixel);
+
+      var feature = evt.map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+        return feature;
+      });
+    
+      var info = document.getElementById('info');
+      if (feature) {
+        info.innerHTML = 'Ground ID : ' + feature.get('ground');
+      } else {
+        info.innerHTML = '&nbsp;';
+      }
     });
 
   }
