@@ -1,11 +1,3 @@
-.ol-mouse-position {
-    top: 15px;
-    right: 58px;
-    position: absolute;
-    color: Red;
-    z-index: 10000;
-  }
-
   .info {
     position: absolute;
     bottom: 10px;

@@ -63,8 +63,8 @@ export class AppComponent {
 
     // oh shit the real map code kinda starts here!
     var mapExtent = [0, negExtentY, mapwidth, 0];
-    var mapMinZoom = 0;
-    var mapMaxZoom = 5;
+    var mapMinZoom = 5;
+    var mapMaxZoom = 9;
     var mapMaxResolution = 1.00000000;
     var tileExtent = [0, negExtentY, mapwidth, 0];
 
@@ -90,6 +90,39 @@ export class AppComponent {
       new ol.control.Zoom(),
       new ol.control.FullScreen(),
     ];
+
+    var iconInfo = [];
+  
+    let s: number = 16
+
+    while (s > 0.004) {
+      iconInfo.push({
+        reso: s,
+        radius: 11 / s
+      });
+
+      s = s / 2;
+    } 
+    
+    var iconCount = iconInfo.length;
+    var icons = new Array(iconCount);
+
+    for (let i = 0; i < iconCount; ++i) {
+      var info = iconInfo[i];
+      icons[i] = {
+        style: new ol.style.RegularShape({
+          points: 4,
+          radius: info.radius,
+          angle: Math.PI / 4,
+          fill: new ol.style.Fill({
+            color: "rgba(46, 204, 56, 0.5)"
+          }),
+        }),
+        reso: info.reso
+      };
+    }
+
+    console.log("Icons", icons);
 
     var tileSrc = new ol.source.Vector();
 
@@ -119,27 +152,31 @@ export class AppComponent {
     }
 
     var tileStyleFunction = function (feature, resolution) {
+      // console.log("Reso", resolution);
       var type = feature.get('ground');
       var color = feature.get('color');
 
       // http://jsfiddle.net/vkm2rg46/3/
-      return [
-        new ol.style.Style({
-          image: new ol.style.RegularShape({
-            points: 4,
-            radius: 8 / resolution,
-            angle: Math.PI / 4,
-            fill: new ol.style.Fill({
-              color: color
-            }),
-            // stroke: new ol.style.Stroke({
-            //     width: 2,
-            //     color: 'rgba(0, 0, 0, 0.9)'
-            // })
+      if (type == "gr" || type == "lw") {
+        return [
+          new ol.style.Style({
+            image: icons.find(x => x.reso == resolution).style
           })
-        })
-      ]
-
+        ]
+      } else {
+        return [
+          new ol.style.Style({
+            image: new ol.style.RegularShape({
+              points: 4,
+              radius: 11 / resolution,
+              angle: Math.PI / 4,
+              fill: new ol.style.Fill({
+                color: color
+              }),
+            })
+          })
+        ]
+      }
 
       // Circle
       // return [
@@ -155,7 +192,8 @@ export class AppComponent {
     this.tileLayer = new ol.layer.Vector({
       source: tileSrc,
       name: "farts",
-      style: tileStyleFunction
+      style: tileStyleFunction,
+      renderMode: 'image'
     });
 
     this.map = new ol.Map({
@@ -163,10 +201,13 @@ export class AppComponent {
         this.tileLayer
       ],
       target: 'map',
+      renderer: 'webgl',
       controls: controls,
       view: new ol.View({
-        center: [43, 70],
-        zoom: 8,
+        center: [mapwidth / 2, mapHeight / 2],
+        zoom: 5,
+        minZoom: 5,
+        maxZoom: 9,
         maxResolution: mapTileGrid.getResolution(mapMinZoom)
       })
     });

@@ -1,1 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+
+div.ol-mouse-position {
+    top: 15px;
+    right: 58px;
+    position: absolute;
+    color: Red;
+    z-index: 10000;
+  }
