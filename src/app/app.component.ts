@@ -16,6 +16,7 @@ export class AppComponent {
   map: any;
   tileLayer: any;
   treeLayer: any;
+  wallLayer: any;
 
   constructor(private http: HttpClient) {
     this.getParseMap();
@@ -100,10 +101,10 @@ export class AppComponent {
       case "fir":
       case "firB":
       case "firS":
-       return {
-        Tree: "Fir",
-        Color: "rgb(46, 184, 46)"
-      }
+        return {
+          Tree: "Fir",
+          Color: "rgb(46, 184, 46)"
+        }
       case "grape":
         return {
           Tree: "Grape",
@@ -169,7 +170,7 @@ export class AppComponent {
           Tree: "Pine",
           Color: "rgb(64, 128, 0)"
         }
-        case "rose":
+      case "rose":
         return {
           Tree: "Rose",
           Color: "rgb(245, 10, 155)"
@@ -262,6 +263,7 @@ export class AppComponent {
 
     var tileSrc = new ol.source.Vector();
     var treeSrc = new ol.source.Vector();
+    var wallSrc = new ol.source.Vector();
 
     // main interator
     for (let tile of json.map.tile) {
@@ -271,7 +273,8 @@ export class AppComponent {
       var tileFeature = new ol.Feature({
         geometry: new ol.geom.Point([x, y]),
         ground: tile.ground.id,
-        color: this.groudColor(tile.ground.id)
+        color: this.groudColor(tile.ground.id),
+        tile: tile
       });
 
       tileSrc.addFeature(tileFeature);
@@ -279,11 +282,49 @@ export class AppComponent {
       // level stuff
       let levels: any[] = tile.level;
 
-      if (levels.length > 2) {
-        // console.log("Levels", levels);
+      if (levels.length > 0) {
+        // console.log("Levels 2+", levels);
+
+        var firstFloor: any = levels[0]
+
+        if (firstFloor.hWall) {
+          // console.log("Horiz. wall: ", firstFloor.hWall);
+
+          var wallFeature = new ol.Feature({
+            geometry: new ol.geom.LineString([[x - 8, y - 8], [x + 8, y - 8]]), 
+            type: firstFloor.hWall.id
+          })
+
+          wallSrc.addFeature(wallFeature)
+        }
+
+        if (firstFloor.vWall) {
+          // console.log("Vert. wall: ", firstFloor.vWall);
+          var wallFeature = new ol.Feature({
+            geometry: new ol.geom.LineString([[x - 8, y - 8], [x - 8, y + 8]]),
+            type: firstFloor.vWall.id
+          })
+
+          wallSrc.addFeature(wallFeature)
+        }
       }
-      else {
-        // console.log("Levels", levels);
+
+      if (tile.level.hWall) {
+        var wallFeature = new ol.Feature({
+          geometry: new ol.geom.LineString([[x - 8, y - 8], [x + 8, y - 8]]),
+          type: tile.level.hWall.id
+        })
+
+        wallSrc.addFeature(wallFeature)
+      }
+
+      if (tile.level.vWall) {
+        var wallFeature = new ol.Feature({
+          geometry: new ol.geom.LineString([[x - 8, y - 8], [x - 8, y + 8]]),
+          type: tile.level.vWall
+        })
+
+        wallSrc.addFeature(wallFeature)
       }
 
       if (tile.level.object != null) {
@@ -342,6 +383,14 @@ export class AppComponent {
       ]
     }
 
+    var wallStyleFunction = function (feature, resolution) {
+      return [
+        new ol.style.Style({
+          stroke: new ol.style.Stroke({ color: 'black', width: 1 / resolution })
+        })
+      ]
+    }
+
     this.tileLayer = new ol.layer.Vector({
       source: tileSrc,
       name: "farts",
@@ -355,10 +404,18 @@ export class AppComponent {
       renderMode: 'image'
     });
 
+    this.wallLayer = new ol.layer.Vector({
+      source: wallSrc,
+      style: wallStyleFunction,
+      renderMode: 'image'
+    })
+
+
     this.map = new ol.Map({
       layers: [
         this.tileLayer,
-        this.treeLayer
+        this.treeLayer,
+        this.wallLayer
       ],
       target: 'map',
       // renderer: 'webgl',
@@ -379,8 +436,14 @@ export class AppComponent {
         return feature;
       });
 
+      let tile: string = feature.get('tile');
       let groundId: string = feature.get('ground');
       let treeId: string = feature.get('tree');
+
+      if (tile) {
+        console.log("Tile:", tile);
+      }
+
 
       var info = document.getElementById('info');
       if (groundId) {
