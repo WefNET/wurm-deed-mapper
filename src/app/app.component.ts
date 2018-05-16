@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { ExpansionCase } from '@angular/compiler';
 
 declare var ol: any;
 
@@ -58,28 +59,55 @@ export class AppComponent {
     switch (id) {
       case "app":
       case "appB":
+      case "appS":
         return {
           Tree: "Apple",
           Color: "rgb(204, 0, 0)"
         }
       case "birch":
       case "birchB":
+      case "birchS":
         return {
           Tree: "Birch",
-          Color: "rgb(242, 242, 242)"
+          Color: "rgb(222, 222, 222)"
+        }
+      case "cam":
+        return {
+          Tree: "Camellia",
+          Color: "rgb(190,12,53)"
         }
       case "cedar":
-      case "cedarB": 
-      case "cedarS": 
+      case "cedarB":
+      case "cedarS":
         return {
           Tree: "Cedar",
           Color: "rgb(51, 102, 0)"
         }
       case "cherry":
       case "cherryB":
+      case "cherryS":
         return {
           Tree: "Cherry",
           Color: "rgb(255, 51, 0)"
+        }
+      case "chestnut":
+      case "chestnutB":
+      case "chestnutS":
+        return {
+          Tree: "Chestnut",
+          Color: "rgb(122, 51, 51)"
+        }
+      case "fir":
+      case "firB":
+      case "firS":
+       return {
+        Tree: "Fir",
+        Color: "rgb(46, 184, 46)"
+      }
+      case "grape":
+        return {
+          Tree: "Grape",
+          Color: "rgb(153, 51, 153)"
         }
       case "laven":
       case "lavenB":
@@ -89,9 +117,50 @@ export class AppComponent {
         }
       case "lemon":
       case "lemonB":
+      case "lemonS":
         return {
           Tree: "Lemon",
           Color: "rgb(255, 255, 153)"
+        }
+      case "linden":
+      case "lindenB":
+      case "lindenS":
+        return {
+          Tree: "Linden",
+          Color: "rgb(138, 138, 92)"
+        }
+      case "maple":
+      case "mapleB":
+      case "mapleS":
+        return {
+          Tree: "Maple",
+          Color: "rgb(102, 0, 0)"
+        }
+      case "oak":
+      case "oakB":
+      case "oakS":
+        return {
+          Tree: "Oak",
+          Color: "rgb(204, 153, 0)"
+        }
+      case "olea":
+        return {
+          Tree: "Oleander",
+          Color: "rgb(250,142,209)"
+        }
+      case "olive":
+      case "oliveB":
+      case "oliveS":
+        return {
+          Tree: "Olive",
+          Color: "rgb(102,117,26)"
+        }
+      case "orange":
+      case "orangeB":
+      case "orangeS":
+        return {
+          Tree: "Orange",
+          Color: "rgb(255, 153, 0)"
         }
       case "pine":
       case "pineB":
@@ -100,8 +169,14 @@ export class AppComponent {
           Tree: "Pine",
           Color: "rgb(64, 128, 0)"
         }
+        case "rose":
+        return {
+          Tree: "Rose",
+          Color: "rgb(245, 10, 155)"
+        }
       case "walnut":
       case "walnutB":
+      case "walnutS":
         return {
           Tree: "Walnut",
           Color: "rgb(122, 31, 31)"
@@ -109,7 +184,7 @@ export class AppComponent {
       default:
         return {
           Tree: "Unknow Id: " + id,
-          Color: "rgb(255, 255, 255)"
+          Color: "rgba(8,191,252, 1)"
         }
     }
   }
@@ -261,7 +336,7 @@ export class AppComponent {
             color: feature.get('color')
           }),
           stroke: new ol.style.Stroke({
-            color: 'rgba(105, 105, 105, 1)'
+            color: 'rgba(105, 105, 105, .2)'
           }),
         })
       ]
@@ -290,7 +365,7 @@ export class AppComponent {
       controls: controls,
       view: new ol.View({
         center: [mapwidth / 2, mapHeight / 2],
-        zoom: 5,
+        zoom: 4,
         minZoom: 5,
         maxZoom: 9,
         maxResolution: mapTileGrid.getResolution(mapMinZoom)
