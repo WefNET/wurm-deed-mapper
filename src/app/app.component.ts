@@ -291,7 +291,7 @@ export class AppComponent {
           // console.log("Horiz. wall: ", firstFloor.hWall);
 
           var wallFeature = new ol.Feature({
-            geometry: new ol.geom.LineString([[x - 8, y - 8], [x + 8, y - 8]]), 
+            geometry: new ol.geom.LineString([[x - 8, y - 8], [x + 8, y - 8]]),
             type: firstFloor.hWall.id
           })
 
@@ -310,8 +310,11 @@ export class AppComponent {
       }
 
       if (tile.level.hWall) {
+
+        var coords = tile.level.hWall.id == "wFenceG" ? [[x - 8, y - 8], [x + 4, y - 12]] : [[x - 8, y - 8], [x + 8, y - 8]]
+
         var wallFeature = new ol.Feature({
-          geometry: new ol.geom.LineString([[x - 8, y - 8], [x + 8, y - 8]]),
+          geometry: new ol.geom.LineString(coords),
           type: tile.level.hWall.id
         })
 
@@ -321,7 +324,7 @@ export class AppComponent {
       if (tile.level.vWall) {
         var wallFeature = new ol.Feature({
           geometry: new ol.geom.LineString([[x - 8, y - 8], [x - 8, y + 8]]),
-          type: tile.level.vWall
+          type: tile.level.vWall.id
         })
 
         wallSrc.addFeature(wallFeature)
@@ -384,11 +387,34 @@ export class AppComponent {
     }
 
     var wallStyleFunction = function (feature, resolution) {
-      return [
-        new ol.style.Style({
-          stroke: new ol.style.Stroke({ color: 'black', width: 1 / resolution })
-        })
-      ]
+      let wallType: string = feature.get('type');
+
+      if (wallType == "curb") {
+        return [
+          new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: 'grey', width: 1 / resolution, lineDash: [1, 8] }),
+          })
+        ]
+      } else if (wallType == "wFence" || wallType == "wFenceG") {
+        return [
+          new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: "rgb(204, 68, 0)", width: 1 / resolution }),
+          })
+        ]
+      } else if (wallType && wallType.lastIndexOf("Hedge") > 0) {
+        return [
+          new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: "rgb(0, 77, 0)", width: 1 / resolution }),
+          })
+        ]
+      }
+      else {
+        return [
+          new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: 'black', width: 1 / resolution })
+          })
+        ]
+      }
     }
 
     this.tileLayer = new ol.layer.Vector({
@@ -439,6 +465,7 @@ export class AppComponent {
       let tile: string = feature.get('tile');
       let groundId: string = feature.get('ground');
       let treeId: string = feature.get('tree');
+      let wallId: string = feature.get('type');
 
       if (tile) {
         console.log("Tile:", tile);
@@ -450,6 +477,8 @@ export class AppComponent {
         info.innerHTML = 'Ground ID : ' + groundId;
       } else if (treeId) {
         info.innerHTML = 'Tree ID : ' + treeId;
+      } else if (wallId) {
+        info.innerHTML = 'Wall ID : ' + JSON.stringify(wallId);
       } else {
         info.innerHTML = '&nbsp;';
       }
