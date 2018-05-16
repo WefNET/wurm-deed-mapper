@@ -54,6 +54,66 @@ export class AppComponent {
     }
   }
 
+  treeFromId(id: string): any {
+    switch (id) {
+      case "app":
+      case "appB":
+        return {
+          Tree: "Apple",
+          Color: "rgb(204, 0, 0)"
+        }
+      case "birch":
+      case "birchB":
+        return {
+          Tree: "Birch",
+          Color: "rgb(242, 242, 242)"
+        }
+      case "cedar":
+      case "cedarB": 
+      case "cedarS": 
+        return {
+          Tree: "Cedar",
+          Color: "rgb(51, 102, 0)"
+        }
+      case "cherry":
+      case "cherryB":
+        return {
+          Tree: "Cherry",
+          Color: "rgb(255, 51, 0)"
+        }
+      case "laven":
+      case "lavenB":
+        return {
+          Tree: "Lavender",
+          Color: "rgb(170, 170, 238)"
+        }
+      case "lemon":
+      case "lemonB":
+        return {
+          Tree: "Lemon",
+          Color: "rgb(255, 255, 153)"
+        }
+      case "pine":
+      case "pineB":
+      case "pineS":
+        return {
+          Tree: "Pine",
+          Color: "rgb(64, 128, 0)"
+        }
+      case "walnut":
+      case "walnutB":
+        return {
+          Tree: "Walnut",
+          Color: "rgb(122, 31, 31)"
+        }
+      default:
+        return {
+          Tree: "Unknow Id: " + id,
+          Color: "rgb(255, 255, 255)"
+        }
+    }
+  }
+
   renderMapData(json: any) {
     console.log("Map data:", json);
 
@@ -106,11 +166,11 @@ export class AppComponent {
     }
 
     var iconCount = iconInfo.length;
-    var icons = new Array(iconCount);
+    var tileIcons = new Array(iconCount);
 
     for (let i = 0; i < iconCount; ++i) {
       var info = iconInfo[i];
-      icons[i] = {
+      tileIcons[i] = {
         style: new ol.style.RegularShape({
           points: 4,
           radius: info.radius,
@@ -123,7 +183,7 @@ export class AppComponent {
       };
     }
 
-    console.log("Icons", icons);
+    // console.log("Icons", tileIcons);
 
     var tileSrc = new ol.source.Vector();
     var treeSrc = new ol.source.Vector();
@@ -154,9 +214,12 @@ export class AppComponent {
       if (tile.level.object != null) {
         // console.log("Tree?", tile.level.object);
 
+        var treeData = this.treeFromId(tile.level.object.id);
+
         var treeFeature = new ol.Feature({
           geometry: new ol.geom.Circle([x, y], 4),
-          tree: tile.level.object
+          tree: treeData.Tree,
+          color: treeData.Color
         })
 
         treeSrc.addFeature(treeFeature);
@@ -172,7 +235,7 @@ export class AppComponent {
       if (type == "gr" || type == "lw") {
         return [
           new ol.style.Style({
-            image: icons.find(x => x.reso == resolution).style
+            image: tileIcons.find(x => x.reso == resolution).style
           })
         ]
       } else {
@@ -194,7 +257,9 @@ export class AppComponent {
     var treeStyleFunction = function (feature, resolution) {
       return [
         new ol.style.Style({
-
+          fill: new ol.style.Fill({
+            color: feature.get('color')
+          }),
           stroke: new ol.style.Stroke({
             color: 'rgba(105, 105, 105, 1)'
           }),
@@ -239,9 +304,14 @@ export class AppComponent {
         return feature;
       });
 
+      let groundId: string = feature.get('ground');
+      let treeId: string = feature.get('tree');
+
       var info = document.getElementById('info');
-      if (feature) {
-        info.innerHTML = 'Ground ID : ' + feature.get('ground');
+      if (groundId) {
+        info.innerHTML = 'Ground ID : ' + groundId;
+      } else if (treeId) {
+        info.innerHTML = 'Tree ID : ' + treeId;
       } else {
         info.innerHTML = '&nbsp;';
       }
