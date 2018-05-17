@@ -17,8 +17,21 @@ export class AppComponent {
   tileLayer: any;
   treeLayer: any;
   wallLayer: any;
+  wallStyle: any;
 
   constructor(private http: HttpClient) {
+    this.wallStyle = new ol.style.Style({
+      image: new ol.style.Icon(({
+        opacity: 1,
+        size: 20,
+        src: './icon.png'
+      })),
+      stroke: new ol.style.Stroke({
+        color: 'black',
+        width: 5,
+      })
+    });
+
     this.getParseMap();
   }
 
@@ -399,6 +412,16 @@ export class AppComponent {
         return [
           new ol.style.Style({
             stroke: new ol.style.Stroke({ color: "rgb(204, 68, 0)", width: 1 / resolution }),
+          })
+        ]
+      } else if (wallType == "sWall") {
+        return [
+          new ol.style.Style({
+            stroke: new ol.style.Stroke({
+              color: 'black',
+              width: 2 / resolution,
+              lineDash: [1, 7]
+            })
           })
         ]
       } else if (wallType && wallType.lastIndexOf("Hedge") > 0) {

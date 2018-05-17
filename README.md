@@ -11,7 +11,7 @@ Designed to translate token dumped *.MAP files into 2D renderings
 3. The JSON data is then pulled in by an Open Layers map to show the following layers dynamically:
     - Tiles
     - Trees
-
+    - Fences and Walls
 
 
 
