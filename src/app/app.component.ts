@@ -40,7 +40,6 @@ export class AppComponent {
     let translator = new Translator();
     let wallStyles = new WallStyles();
 
-
     let mapHeight: number = parseInt(json.map.height) * 16;
     let mapwidth: number = parseInt(json.map.width) * 16;
 
@@ -92,22 +91,30 @@ export class AppComponent {
     var iconCount = iconInfo.length;
     var tileIcons = new Array(iconCount);
 
-    for (let i = 0; i < iconCount; ++i) {
-      var info = iconInfo[i];
-      tileIcons[i] = {
-        style: new ol.style.RegularShape({
-          points: 4,
-          radius: info.radius,
-          angle: Math.PI / 4,
-          fill: new ol.style.Fill({
-            color: "rgba(46, 204, 56, 1)"
+    var cnv = document.createElement('canvas');
+    var ctx = cnv.getContext('2d');
+    var grass = new Image();
+    grass.src = "/assets/grass.jpg";
+    
+    grass.onload = function() {
+      var pattern = ctx.createPattern(grass, 'repeat');
+
+      for (let i = 0; i < iconCount; ++i) {
+        var info = iconInfo[i];
+        tileIcons[i] = {
+          style: new ol.style.RegularShape({
+            points: 4,
+            radius: info.radius,
+            angle: Math.PI / 4,
+            fill: new ol.style.Fill({
+              color: pattern
+            }),
           }),
-        }),
-        reso: info.reso
-      };
+          reso: info.reso
+        };
+      }
     }
 
-    // console.log("Icons", tileIcons);
 
     var tileSrc = new ol.source.Vector();
     var treeSrc = new ol.source.Vector();
@@ -208,7 +215,7 @@ export class AppComponent {
       var color = feature.get('color');
 
       // http://jsfiddle.net/vkm2rg46/3/
-      if (type == "gr" || type == "lw") {
+      if (type == "Grass") {
         return [
           new ol.style.Style({
             image: tileIcons.find(x => x.reso == resolution).style
@@ -343,5 +350,4 @@ export class AppComponent {
     });
 
   }
-
 }
